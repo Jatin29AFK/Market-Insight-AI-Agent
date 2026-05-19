@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030712;
+  --foreground: #f9fafb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.18), transparent 28%),
+    radial-gradient(circle at bottom, rgba(20, 184, 166, 0.12), transparent 35%),
+    #030712;
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.45);
+}
+
+.premium-card {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: linear-gradient(
+    135deg,
+    rgba(17, 24, 39, 0.92),
+    rgba(15, 23, 42, 0.78)
+  );
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.subtle-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(14px);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #93c5fd, #c4b5fd, #5eead4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.answer-content {
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
