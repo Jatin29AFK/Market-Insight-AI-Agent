@@ -284,17 +284,17 @@ export function AgentConsole() {
   </p>
 
   <div className="flex flex-wrap gap-2">
-    {promptTemplates.map((example) => (
-      <button
-        type="button"
-        key={example}
-        onClick={() => useExampleQuestion(example)}
-        className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-300 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100"
-      >
-        {example}
-      </button>
-    ))}
-  </div>
+  {promptTemplates.map((example) => (
+    <button
+      type="button"
+      key={example}
+      onClick={() => applyExampleQuestion(example)}
+      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-slate-300 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-cyan-100"
+    >
+      {example}
+    </button>
+  ))}
+</div>
 </div>
 
           {errorMessage && (
