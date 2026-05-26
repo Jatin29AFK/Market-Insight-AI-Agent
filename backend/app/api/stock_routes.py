@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from app.core.exceptions import StockAppError
 
 from app.schemas.stock_schema import (
     StockRequest,
@@ -33,32 +34,44 @@ router = APIRouter(prefix="/api/stocks", tags=["Stocks"])
 def fetch_stock_price(request: StockRequest):
     try:
         return get_stock_price(request.symbol)
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+    except StockAppError as error:
+        raise HTTPException(
+            status_code=error.status_code,
+            detail=str(error) or error.user_message,
+        )
 
 
 @router.post("/company-info", response_model=CompanyInfoResponse)
 def fetch_company_info(request: StockRequest):
     try:
         return get_company_info(request.symbol)
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+    except StockAppError as error:
+        raise HTTPException(
+            status_code=error.status_code,
+            detail=str(error) or error.user_message,
+        )
 
 
 @router.post("/history", response_model=HistoricalDataResponse)
 def fetch_stock_history(request: HistoricalRequest):
     try:
         return get_historical_data(request.symbol, request.period)
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+    except StockAppError as error:
+        raise HTTPException(
+            status_code=error.status_code,
+            detail=str(error) or error.user_message,
+        )
 
 
 @router.post("/snapshot", response_model=StockSnapshotResponse)
 def fetch_stock_snapshot(request: StockRequest):
     try:
         return get_stock_snapshot(request.symbol)
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+    except StockAppError as error:
+        raise HTTPException(
+            status_code=error.status_code,
+            detail=str(error) or error.user_message,
+        )
 
 
 @router.post("/financials", response_model=FinancialStatementResponse)
@@ -69,8 +82,11 @@ def fetch_financial_statements(request: FinancialStatementRequest):
             statement_type=request.statement_type,
             limit=request.limit
         )
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+    except StockAppError as error:
+        raise HTTPException(
+            status_code=error.status_code,
+            detail=str(error) or error.user_message,
+        )
 
 
 @router.post("/recommendations", response_model=RecommendationResponse)
@@ -80,8 +96,11 @@ def fetch_recommendations(request: RecommendationRequest):
             symbol=request.symbol,
             limit=request.limit
         )
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+    except StockAppError as error:
+        raise HTTPException(
+            status_code=error.status_code,
+            detail=str(error) or error.user_message,
+        )
 
 
 @router.post("/dividends", response_model=DividendResponse)
@@ -91,5 +110,8 @@ def fetch_dividends(request: DividendRequest):
             symbol=request.symbol,
             limit=request.limit
         )
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
+    except StockAppError as error:
+        raise HTTPException(
+            status_code=error.status_code,
+            detail=str(error) or error.user_message,
+        )

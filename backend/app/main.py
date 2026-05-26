@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.api.stock_routes import router as stock_router
 from app.api.ai_routes import router as ai_router
 from app.api.agent_routes import router as agent_router
+from app.services.cache_service import cache
 
 
 app = FastAPI(
@@ -37,6 +38,12 @@ def health_check():
         "status": "healthy"
     }
 
+@app.get("/health/cache")
+def cache_health_check():
+    return {
+        "status": "ok",
+        "cache": cache.stats(),
+    }
 
 app.include_router(stock_router)
 app.include_router(ai_router)

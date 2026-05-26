@@ -1,6 +1,8 @@
 import yfinance as yf
 import pandas as pd
 from typing import Dict, Any, List, Optional
+from app.services.market_data_cache import get_or_set_cache
+from app.core.exceptions import InvalidSymbolError, ExternalDataError
 
 
 def normalize_symbol(symbol: str) -> str:
@@ -171,7 +173,7 @@ def dataframe_to_records(dataframe: pd.DataFrame, limit: int = 5) -> List[Dict[s
     return records
 
 
-def get_stock_price(symbol: str) -> Dict[str, Any]:
+def _fetch_stock_price(symbol: str) -> Dict[str, Any]:
     """
     Fetches current stock price data.
 
@@ -190,11 +192,11 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
         )
 
         if history is None or history.empty:
-            raise ValueError(
+            raise InvalidSymbolError(
                 f"No price data found for '{symbol}'. "
-                f"Please check the Yahoo Finance ticker symbol. "
+                f"Please check the ticker symbol. "
                 f"Examples: AAPL, MSFT, TSLA, RELIANCE.NS, TCS.NS"
-            )
+        )
 
         latest_row = history.iloc[-1]
 
@@ -246,13 +248,24 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
     except ValueError:
         raise
 
+    except InvalidSymbolError:
+        raise
+
     except Exception as error:
-        raise ValueError(
+        raise ExternalDataError(
             f"Unable to fetch price data for symbol: {symbol}. Error: {str(error)}"
-        ) from error
+        ) from error 
 
+def get_stock_price(symbol: str) -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
 
-def get_company_info(symbol: str) -> Dict[str, Any]:
+    return get_or_set_cache(
+        key=f"stock_price:{symbol}",
+        fetch_function=lambda: _fetch_stock_price(symbol),
+        ttl_seconds=60,
+    )
+
+def _fetch_company_info(symbol: str) -> Dict[str, Any]:
     """
     Fetches company profile information.
 
@@ -283,8 +296,16 @@ def get_company_info(symbol: str) -> Dict[str, Any]:
             f"Unable to fetch company info for symbol: {symbol}. Error: {str(error)}"
         ) from error
 
+def get_company_info(symbol: str) -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
 
-def get_key_metrics(symbol: str) -> Dict[str, Any]:
+    return get_or_set_cache(
+        key=f"company_info:{symbol}",
+        fetch_function=lambda: _fetch_company_info(symbol),
+        ttl_seconds=3600,
+    )
+
+def _fetch_key_metrics(symbol: str) -> Dict[str, Any]:
     """
     Fetches important business/stock metrics.
 
@@ -324,6 +345,14 @@ def get_key_metrics(symbol: str) -> Dict[str, Any]:
             f"Unable to fetch key metrics for symbol: {symbol}. Error: {str(error)}"
         ) from error
 
+def get_key_metrics(symbol: str) -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
+
+    return get_or_set_cache(
+        key=f"key_metrics:{symbol}",
+        fetch_function=lambda: _fetch_key_metrics(symbol),
+        ttl_seconds=300,
+    )
 
 def get_stock_snapshot(symbol: str) -> Dict[str, Any]:
     """
@@ -351,7 +380,7 @@ def get_stock_snapshot(symbol: str) -> Dict[str, Any]:
     }
 
 
-def get_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
+def _fetch_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
     """
     Fetches historical stock price data.
 
@@ -409,6 +438,14 @@ def get_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
             f"Unable to fetch historical data for symbol: {symbol}. Error: {str(error)}"
         ) from error
 
+def get_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
+
+    return get_or_set_cache(
+        key=f"history:{symbol}:{period}",
+        fetch_function=lambda: _fetch_historical_data(symbol, period),
+        ttl_seconds=600,
+    )
 
 def get_financial_statements(
     symbol: str,

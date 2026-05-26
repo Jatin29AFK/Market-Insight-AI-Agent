@@ -142,6 +142,18 @@ def get_dividends_tool(symbol: str, limit: int = 10) -> str:
     return to_pretty_json(get_dividends(symbol=symbol, limit=limit))
 
 
+def safe_tool_response(tool_name: str, callback):
+    try:
+        return to_pretty_json(callback())
+
+    except Exception as error:
+        return to_pretty_json({
+            "tool": tool_name,
+            "success": False,
+            "error": str(error),
+            "message": "This tool could not fetch data right now. Explain this limitation clearly to the user."
+        })
+
 STOCK_AGENT_TOOLS = [
     get_stock_price_tool,
     get_company_info_tool,
