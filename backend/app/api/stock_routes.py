@@ -39,6 +39,11 @@ def fetch_stock_price(request: StockRequest):
             status_code=error.status_code,
             detail=str(error) or error.user_message,
         )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected server error: {str(error)}"
+        )
 
 
 @router.post("/company-info", response_model=CompanyInfoResponse)
@@ -49,6 +54,11 @@ def fetch_company_info(request: StockRequest):
         raise HTTPException(
             status_code=error.status_code,
             detail=str(error) or error.user_message,
+        )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected server error: {str(error)}"
         )
 
 
@@ -61,6 +71,11 @@ def fetch_stock_history(request: HistoricalRequest):
             status_code=error.status_code,
             detail=str(error) or error.user_message,
         )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected server error: {str(error)}"
+        )
 
 
 @router.post("/snapshot", response_model=StockSnapshotResponse)
@@ -71,6 +86,11 @@ def fetch_stock_snapshot(request: StockRequest):
         raise HTTPException(
             status_code=error.status_code,
             detail=str(error) or error.user_message,
+        )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected server error: {str(error)}"
         )
 
 
@@ -87,6 +107,11 @@ def fetch_financial_statements(request: FinancialStatementRequest):
             status_code=error.status_code,
             detail=str(error) or error.user_message,
         )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected server error: {str(error)}"
+        )
 
 
 @router.post("/recommendations", response_model=RecommendationResponse)
@@ -101,6 +126,11 @@ def fetch_recommendations(request: RecommendationRequest):
             status_code=error.status_code,
             detail=str(error) or error.user_message,
         )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected server error: {str(error)}"
+        )
 
 
 @router.post("/dividends", response_model=DividendResponse)
@@ -114,4 +144,9 @@ def fetch_dividends(request: DividendRequest):
         raise HTTPException(
             status_code=error.status_code,
             detail=str(error) or error.user_message,
+        )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected server error: {str(error)}"
         )
