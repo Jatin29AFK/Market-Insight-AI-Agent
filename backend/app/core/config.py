@@ -5,17 +5,29 @@ import os
 load_dotenv()
 
 
+LOCAL_DEV_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+
 def get_allowed_origins() -> list[str]:
     origins = os.getenv(
         "ALLOWED_ORIGINS",
-        "http://localhost:3000,http://localhost:5173"
+        ",".join(LOCAL_DEV_ORIGINS)
     )
 
-    return [
+    configured_origins = [
         origin.strip()
         for origin in origins.split(",")
         if origin.strip()
     ]
+
+    return list(dict.fromkeys([*configured_origins, *LOCAL_DEV_ORIGINS]))
 
 
 class Settings(BaseModel):

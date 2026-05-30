@@ -8,15 +8,19 @@ export default function Home() {
     <div className="min-h-screen">
       <section className="w-full px-4 pb-8 pt-10 text-center md:px-8 md:pb-12 md:pt-14">
         <div className="mx-auto flex max-w-6xl flex-col items-center">
-          <AppLogo size="lg" />
+          <div className="flex flex-col items-center justify-center gap-5 md:flex-row md:gap-7">
+            <AppLogo size="lg" />
 
-          <h1 className="mt-6 text-6xl font-black tracking-tight text-white md:text-8xl">
-            <span className="gradient-text">Market Insight AI</span>
-          </h1>
+            <div className="text-center md:text-left">
+              <h1 className="text-6xl font-black tracking-tight text-white md:text-8xl">
+                <span className="gradient-text">Market Insight AI</span>
+              </h1>
 
-          <p className="mt-3 text-base font-medium text-slate-300 md:text-xl">
-            Agentic stock research assistant
-          </p>
+              <p className="mt-3 text-base font-medium text-slate-300 md:text-xl">
+                Agentic stock research assistant
+              </p>
+            </div>
+          </div>
 
           <p className="mb-5 mt-6 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-cyan-100">
             AI-powered market research with transparent tool usage

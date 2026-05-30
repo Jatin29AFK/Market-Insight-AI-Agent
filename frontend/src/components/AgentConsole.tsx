@@ -64,6 +64,16 @@ export function AgentConsole() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const isBusy = isLoadingDashboard || isStreaming;
+  const hasInsightContent =
+    Boolean(snapshot) ||
+    Boolean(history) ||
+    Boolean(result) ||
+    Boolean(streamedAnswer) ||
+    isLoadingDashboard ||
+    isStreaming;
+  const consoleGridClass = hasInsightContent
+    ? "lg:grid-cols-[420px_minmax(0,1fr)]"
+    : "lg:grid-cols-[minmax(500px,620px)_minmax(360px,760px)] lg:justify-center";
 
   const [selectedPeriod, setSelectedPeriod] = useState("6mo");
 
@@ -194,7 +204,9 @@ export function AgentConsole() {
   }
 
   return (
-    <main className="grid w-full items-stretch gap-6 px-4 pb-10 md:px-8 lg:grid-cols-[420px_1fr]">
+    <main
+      className={`grid w-full items-stretch gap-6 px-4 pb-10 md:px-8 ${consoleGridClass}`}
+    >
       <aside className="premium-card h-fit rounded-[2rem] p-6 lg:sticky lg:top-6">
         <div className="mb-6">
           <div className="mb-3 flex items-center gap-2">
