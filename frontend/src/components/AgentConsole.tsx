@@ -194,7 +194,7 @@ export function AgentConsole() {
   }
 
   return (
-    <main className="grid w-full gap-6 px-4 pb-10 md:px-8 lg:grid-cols-[420px_1fr]">
+    <main className="grid w-full items-stretch gap-6 px-4 pb-10 md:px-8 lg:grid-cols-[420px_1fr]">
       <aside className="premium-card h-fit rounded-[2rem] p-6 lg:sticky lg:top-6">
         <div className="mb-6">
           <div className="mb-3 flex items-center gap-2">
@@ -355,7 +355,7 @@ export function AgentConsole() {
         </form>
       </aside>
 
-      <section>
+      <section className="flex min-h-full flex-col">
                 {isLoadingDashboard && !snapshot && !history ? (
           <DashboardSkeleton />
         ) : (

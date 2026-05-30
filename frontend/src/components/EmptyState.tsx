@@ -2,7 +2,7 @@ import { LineChart, Search, Sparkles } from "lucide-react";
 
 export function EmptyState() {
   return (
-    <section className="premium-card flex min-h-[520px] flex-col items-center justify-center rounded-[2rem] p-8 text-center">
+    <section className="premium-card flex min-h-[620px] flex-1 flex-col items-center justify-center rounded-[2rem] p-8 text-center lg:min-h-full">
       <div className="relative mb-8">
         <div className="absolute inset-0 rounded-full bg-cyan-400/20 blur-3xl" />
 

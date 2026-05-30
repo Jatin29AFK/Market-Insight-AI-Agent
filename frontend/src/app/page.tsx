@@ -1,5 +1,4 @@
 import { AgentConsole } from "@/components/AgentConsole";
-import { Header } from "@/components/Header";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 import { WatchlistCompare } from "@/components/WatchlistCompare";
 import { AppLogo } from "@/components/AppLogo";
@@ -7,15 +6,17 @@ import { AppLogo } from "@/components/AppLogo";
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <Header />
-
-      <section className="w-full px-4 pb-8 pt-8 text-center md:px-8 md:pb-12 md:pt-12">
+      <section className="w-full px-4 pb-8 pt-10 text-center md:px-8 md:pb-12 md:pt-14">
         <div className="mx-auto flex max-w-6xl flex-col items-center">
           <AppLogo size="lg" />
 
           <h1 className="mt-6 text-6xl font-black tracking-tight text-white md:text-8xl">
             <span className="gradient-text">Market Insight AI</span>
           </h1>
+
+          <p className="mt-3 text-base font-medium text-slate-300 md:text-xl">
+            Agentic stock research assistant
+          </p>
 
           <p className="mb-5 mt-6 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-cyan-100">
             AI-powered market research with transparent tool usage
