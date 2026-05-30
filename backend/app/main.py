@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.logger import configure_logging
 from app.core.config import settings
+from app.api.compare_routes import router as compare_router
 from app.api.stock_routes import router as stock_router
 from app.api.ai_routes import router as ai_router
 from app.api.agent_routes import router as agent_router
 from app.services.cache_service import cache
 
+
+configure_logging()
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -48,3 +52,4 @@ def cache_health_check():
 app.include_router(stock_router)
 app.include_router(ai_router)
 app.include_router(agent_router)
+app.include_router(compare_router)

@@ -1,6 +1,10 @@
 from typing import Any, Callable
 
+from app.core.logger import get_logger
 from app.services.cache_service import cache
+
+
+logger = get_logger(__name__)
 
 
 def get_or_set_cache(
@@ -21,8 +25,10 @@ def get_or_set_cache(
     cached_value = cache.get(key)
 
     if cached_value is not None:
+        logger.info("cache hit key=%s", key)
         return cached_value
 
+    logger.info("cache miss key=%s", key)
     fresh_value = fetch_function()
 
     cache.set(
@@ -31,4 +37,5 @@ def get_or_set_cache(
         ttl_seconds=ttl_seconds,
     )
 
+    logger.info("cache set key=%s ttl_seconds=%s", key, ttl_seconds)
     return fresh_value

@@ -2,6 +2,7 @@ import { AgentConsole } from "@/components/AgentConsole";
 import { Header } from "@/components/Header";
 import { MetricStrip } from "@/components/MetricStrip";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { WatchlistCompare } from "@/components/WatchlistCompare";
 
 export default function Home() {
   return (
@@ -36,6 +37,7 @@ export default function Home() {
       </section>
 
       <AgentConsole />
+      <WatchlistCompare />
     </div>
   );
 }

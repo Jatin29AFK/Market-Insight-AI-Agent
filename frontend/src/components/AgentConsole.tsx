@@ -298,9 +298,19 @@ export function AgentConsole() {
 </div>
 
           {errorMessage && (
-            <div className="flex gap-3 rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-200">
+            <div className="rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-200">
+              <div className="flex gap-3">
               <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-              <p>{errorMessage}</p>
+                <div>
+                  <p className="font-medium">Could not complete the request</p>
+                  <p className="mt-1 text-red-100/80">{errorMessage}</p>
+                </div>
+              </div>
+              <ul className="mt-3 list-disc space-y-1 pl-9 text-xs text-red-100/70">
+                <li>Check ticker symbol</li>
+                <li>Use .NS for Indian stocks</li>
+                <li>Try again after some time</li>
+              </ul>
             </div>
           )}
 
@@ -343,6 +353,7 @@ export function AgentConsole() {
     streamedAnswer={streamedAnswer}
     isStreaming={isStreaming}
     result={result}
+    snapshot={snapshot}
   />
 ) : result ? (
   <AnswerCard result={result} />

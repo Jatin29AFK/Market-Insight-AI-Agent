@@ -96,8 +96,8 @@ def get_stock_price_tool(symbol: str) -> str:
     previous close, day high, day low, currency, or market cap.
     """
     return safe_tool_response(
-        "get_company_info_tool",
-        lambda: get_company_info(symbol),
+        "get_stock_price_tool",
+        lambda: get_stock_price(symbol),
     )
 
 @tool(args_schema=SymbolInput)

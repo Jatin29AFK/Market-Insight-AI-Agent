@@ -14,8 +14,14 @@ function cleanToolName(tool: string) {
 export function ToolBadges({ tools }: ToolBadgesProps) {
   if (!tools.length) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-400">
-        No tools were used for this response.
+      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <Wrench className="h-4 w-4 text-cyan-300" />
+          <h3 className="font-medium text-white">Tools Used</h3>
+        </div>
+        <p className="text-sm leading-6 text-slate-400">
+          No external tools were reported for this response.
+        </p>
       </div>
     );
   }

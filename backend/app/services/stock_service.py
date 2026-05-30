@@ -1,9 +1,14 @@
 import yfinance as yf
 import pandas as pd
 from typing import Dict, Any, List, Optional
+from app.core.logger import get_logger
 from app.services.market_data_cache import get_or_set_cache
 from app.core.exceptions import InvalidSymbolError, ExternalDataError
 from app.services.symbol_helper import suggest_symbol
+
+
+logger = get_logger(__name__)
+
 
 def normalize_symbol(symbol: str) -> str:
     """
@@ -273,6 +278,7 @@ def build_invalid_symbol_message(symbol: str) -> str:
 
 def get_stock_price(symbol: str) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
+    logger.info("stock price requested symbol=%s", symbol)
 
     return get_or_set_cache(
         key=f"stock_price:{symbol}",
@@ -313,6 +319,7 @@ def _fetch_company_info(symbol: str) -> Dict[str, Any]:
 
 def get_company_info(symbol: str) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
+    logger.info("company info requested symbol=%s", symbol)
 
     return get_or_set_cache(
         key=f"company_info:{symbol}",
@@ -362,6 +369,7 @@ def _fetch_key_metrics(symbol: str) -> Dict[str, Any]:
 
 def get_key_metrics(symbol: str) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
+    logger.info("key metrics requested symbol=%s", symbol)
 
     return get_or_set_cache(
         key=f"key_metrics:{symbol}",
@@ -382,6 +390,7 @@ def get_stock_snapshot(symbol: str) -> Dict[str, Any]:
     - key financial metrics
     """
     symbol = normalize_symbol(symbol)
+    logger.info("stock snapshot requested symbol=%s", symbol)
 
     company = get_company_info(symbol)
     price = get_stock_price(symbol)
@@ -455,6 +464,7 @@ def _fetch_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
 
 def get_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
+    logger.info("history requested symbol=%s period=%s", symbol, period)
 
     return get_or_set_cache(
         key=f"history:{symbol}:{period}",
@@ -541,6 +551,12 @@ def get_financial_statements(
     symbol = normalize_symbol(symbol)
     statement_type = statement_type.strip().lower()
     limit = max(1, min(limit, 20))
+    logger.info(
+        "financial statements requested symbol=%s statement_type=%s limit=%s",
+        symbol,
+        statement_type,
+        limit,
+    )
 
     return get_or_set_cache(
         key=f"financials:{symbol}:{statement_type}:{limit}",
@@ -606,6 +622,7 @@ def _fetch_recommendations(symbol: str, limit: int = 10) -> Dict[str, Any]:
 def get_recommendations(symbol: str, limit: int = 10) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
     limit = max(1, min(limit, 50))
+    logger.info("recommendations requested symbol=%s limit=%s", symbol, limit)
 
     return get_or_set_cache(
         key=f"recommendations:{symbol}:{limit}",
@@ -661,6 +678,7 @@ def _fetch_dividends(symbol: str, limit: int = 10) -> Dict[str, Any]:
 def get_dividends(symbol: str, limit: int = 10) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
     limit = max(1, min(limit, 100))
+    logger.info("dividends requested symbol=%s limit=%s", symbol, limit)
 
     return get_or_set_cache(
         key=f"dividends:{symbol}:{limit}",

@@ -5,6 +5,7 @@ import type {
   StockSnapshotResponse,
   StreamEvent,
 } from "@/types/agent";
+import type { CompareStocksResponse } from "@/types/compare";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
@@ -67,6 +68,15 @@ export async function getStockHistory(
   return postJson<HistoricalDataResponse, { symbol: string; period: string }>(
     "/api/stocks/history",
     { symbol, period }
+  );
+}
+
+export async function compareStocks(
+  symbols: string[]
+): Promise<CompareStocksResponse> {
+  return postJson<CompareStocksResponse, { symbols: string[] }>(
+    "/api/compare/stocks",
+    { symbols }
   );
 }
 

@@ -1,8 +1,12 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import { MarkdownAnswer } from "@/components/MarkdownAnswer";
-import { Brain, Database, Layers3, Loader2 } from "lucide-react";
-import type { AgentChatResponse } from "@/types/agent";
+import { Brain, Check, Copy, Database, Download, Layers3, Loader2 } from "lucide-react";
+import type { AgentChatResponse, StockSnapshotResponse } from "@/types/agent";
 import { ToolBadges } from "@/components/ToolBadges";
 import { TraceTimeline } from "@/components/TraceTimeline";
+import { buildMarkdownReport } from "@/lib/report";
 
 type StreamingAnswerCardProps = {
   symbol: string;
@@ -10,6 +14,7 @@ type StreamingAnswerCardProps = {
   streamedAnswer: string;
   isStreaming: boolean;
   result?: AgentChatResponse | null;
+  snapshot?: StockSnapshotResponse | null;
 };
 
 export function StreamingAnswerCard({
@@ -18,9 +23,45 @@ export function StreamingAnswerCard({
   streamedAnswer,
   isStreaming,
   result,
+  snapshot,
 }: StreamingAnswerCardProps) {
+  const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
+
+  const report = useMemo(
+    () =>
+      buildMarkdownReport({
+        symbol: result?.symbol || symbol,
+        question: result?.question || question,
+        answer: result?.answer || streamedAnswer,
+        toolsUsed: result?.tools_used || [],
+        metadata: result?.metadata,
+        snapshot,
+      }),
+    [question, result, snapshot, streamedAnswer, symbol]
+  );
+
   if (!streamedAnswer && !isStreaming) {
     return null;
+  }
+
+  async function handleCopyReport() {
+    await navigator.clipboard.writeText(report);
+    setCopyState("copied");
+    window.setTimeout(() => setCopyState("idle"), 1800);
+  }
+
+  function handleDownloadReport() {
+    const blob = new Blob([report], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const fileSymbol = (result?.symbol || symbol || "market")
+      .toLowerCase()
+      .replace(/[^a-z0-9.-]+/g, "-");
+
+    link.href = url;
+    link.download = `market-insight-${fileSymbol}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -49,10 +90,37 @@ export function StreamingAnswerCard({
             Streaming
           </div>
         ) : result?.metadata?.llm_model ? (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
-            <div className="flex items-center gap-2">
-              <Layers3 className="h-4 w-4 text-violet-300" />
-              {result.metadata.llm_model}
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleCopyReport}
+              className="inline-flex items-center gap-2 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100 transition hover:bg-cyan-300/15"
+            >
+              {copyState === "copied" ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  Copy Report
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadReport}
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300 transition hover:bg-white/[0.07]"
+            >
+              <Download className="h-4 w-4 text-violet-300" />
+              Download .md
+            </button>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300">
+              <div className="flex items-center gap-2">
+                <Layers3 className="h-4 w-4 text-violet-300" />
+                {result.metadata.llm_model}
+              </div>
             </div>
           </div>
         ) : null}

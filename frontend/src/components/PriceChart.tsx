@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { AlertCircle } from "lucide-react";
 
 import type { HistoricalDataResponse } from "@/types/agent";
 import { formatCurrency, formatDateLabel } from "@/lib/format";
@@ -30,10 +31,17 @@ export function PriceChart({ history, currency = "USD" }: PriceChartProps) {
   if (!chartData.length) {
     return (
       <div className="premium-card rounded-[2rem] p-6">
-        <h3 className="text-lg font-semibold text-white">Price Chart</h3>
-        <p className="mt-3 text-sm text-slate-400">
-          No historical price data available for this stock.
-        </p>
+        <div className="flex gap-3">
+          <AlertCircle className="mt-1 h-5 w-5 text-cyan-300" />
+          <div>
+            <h3 className="text-lg font-semibold text-white">No Chart Data</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              No historical price data is available for this stock and period.
+              Check the ticker symbol, use .NS for Indian stocks, or try a
+              longer chart period.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
