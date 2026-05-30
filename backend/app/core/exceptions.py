@@ -1,6 +1,6 @@
 class StockAppError(Exception):
     """
-    Base error for our application.
+    Base exception for our stock app.
     """
 
     status_code = 400
@@ -9,7 +9,7 @@ class StockAppError(Exception):
 
 class InvalidSymbolError(StockAppError):
     """
-    Raised when stock symbol is invalid or data is unavailable.
+    Used when stock symbol is invalid or no data is found.
     """
 
     status_code = 404
@@ -18,7 +18,7 @@ class InvalidSymbolError(StockAppError):
 
 class ExternalDataError(StockAppError):
     """
-    Raised when yFinance or external data source fails.
+    Used when yFinance or external market data provider fails.
     """
 
     status_code = 502
@@ -27,7 +27,7 @@ class ExternalDataError(StockAppError):
 
 class AIServiceError(StockAppError):
     """
-    Raised when LLM/agent service fails.
+    Used when Groq / LLM / agent service fails.
     """
 
     status_code = 502

@@ -11,20 +11,11 @@ def get_or_set_cache(
     """
     Generic cache wrapper.
 
-    Step 1:
-    Check if key exists in cache.
-
-    Step 2:
-    If yes, return cached value.
-
-    Step 3:
-    If no, call fetch_function.
-
-    Step 4:
-    Store result in cache.
-
-    Step 5:
-    Return result.
+    1. Check cache.
+    2. If cached value exists, return it.
+    3. If not, call fetch_function.
+    4. Store fresh value in cache.
+    5. Return fresh value.
     """
 
     cached_value = cache.get(key)

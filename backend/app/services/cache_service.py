@@ -4,16 +4,13 @@ from typing import Any, Dict, Optional
 
 class SimpleTTLCache:
     """
-    A small in-memory cache with TTL.
+    Simple in-memory TTL cache.
 
     In-memory means:
-    Data is stored inside the running Python process.
+    Data is stored inside the running FastAPI server.
 
     TTL means:
-    Cached data expires after a fixed number of seconds.
-
-    This is not Redis.
-    This is a simple beginner-friendly cache for local/demo use.
+    Time To Live. After this time, cached data expires.
     """
 
     def __init__(self):
@@ -22,12 +19,10 @@ class SimpleTTLCache:
     def get(self, key: str) -> Optional[Any]:
         item = self._store.get(key)
 
-        if not item:
+        if item is None:
             return None
 
-        expires_at = item["expires_at"]
-
-        if time.time() > expires_at:
+        if time.time() > item["expires_at"]:
             self._store.pop(key, None)
             return None
 
@@ -42,13 +37,13 @@ class SimpleTTLCache:
     def clear(self) -> None:
         self._store.clear()
 
-    def stats(self) -> Dict[str, Any]:
+    def stats(self) -> Dict[str, int]:
         active_items = 0
         expired_items = 0
-        current_time = time.time()
+        now = time.time()
 
         for item in self._store.values():
-            if current_time <= item["expires_at"]:
+            if now <= item["expires_at"]:
                 active_items += 1
             else:
                 expired_items += 1

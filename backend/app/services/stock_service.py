@@ -3,7 +3,7 @@ import pandas as pd
 from typing import Dict, Any, List, Optional
 from app.services.market_data_cache import get_or_set_cache
 from app.core.exceptions import InvalidSymbolError, ExternalDataError
-
+from app.services.symbol_helper import suggest_symbol
 
 def normalize_symbol(symbol: str) -> str:
     """
@@ -256,6 +256,21 @@ def _fetch_stock_price(symbol: str) -> Dict[str, Any]:
             f"Unable to fetch price data for symbol: {symbol}. Error: {str(error)}"
         ) from error 
 
+def build_invalid_symbol_message(symbol: str) -> str:
+    suggestion = suggest_symbol(symbol)
+
+    if suggestion:
+        return (
+            f"No market data found for '{symbol}'. "
+            f"Did you mean '{suggestion}'?"
+        )
+
+    return (
+        f"No market data found for '{symbol}'. "
+        f"Please check the Yahoo Finance ticker symbol. "
+        f"Examples: AAPL, MSFT, TSLA, RELIANCE.NS, TCS.NS"
+    )
+
 def get_stock_price(symbol: str) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
 
@@ -447,7 +462,7 @@ def get_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
         ttl_seconds=600,
     )
 
-def get_financial_statements(
+def _fetch_financial_statements(
     symbol: str,
     statement_type: str = "all",
     limit: int = 5
@@ -518,8 +533,25 @@ def get_financial_statements(
             f"Unable to fetch financial statements for symbol: {symbol}. Error: {str(error)}"
         ) from error
 
+def get_financial_statements(
+    symbol: str,
+    statement_type: str = "all",
+    limit: int = 5
+) -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
+    statement_type = statement_type.strip().lower()
+    limit = max(1, min(limit, 20))
 
-def get_recommendations(symbol: str, limit: int = 10) -> Dict[str, Any]:
+    return get_or_set_cache(
+        key=f"financials:{symbol}:{statement_type}:{limit}",
+        fetch_function=lambda: _fetch_financial_statements(
+            symbol=symbol,
+            statement_type=statement_type,
+            limit=limit,
+        ),
+        ttl_seconds=21600,
+    )
+def _fetch_recommendations(symbol: str, limit: int = 10) -> Dict[str, Any]:
     """
     Fetches analyst recommendations if available.
 
@@ -571,8 +603,17 @@ def get_recommendations(symbol: str, limit: int = 10) -> Dict[str, Any]:
             f"Unable to fetch recommendations for symbol: {symbol}. Error: {str(error)}"
         ) from error
 
+def get_recommendations(symbol: str, limit: int = 10) -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
+    limit = max(1, min(limit, 50))
 
-def get_dividends(symbol: str, limit: int = 10) -> Dict[str, Any]:
+    return get_or_set_cache(
+        key=f"recommendations:{symbol}:{limit}",
+        fetch_function=lambda: _fetch_recommendations(symbol, limit),
+        ttl_seconds=3600,
+    )
+
+def _fetch_dividends(symbol: str, limit: int = 10) -> Dict[str, Any]:
     """
     Fetches dividend history.
 
@@ -616,3 +657,13 @@ def get_dividends(symbol: str, limit: int = 10) -> Dict[str, Any]:
         raise ValueError(
             f"Unable to fetch dividends for symbol: {symbol}. Error: {str(error)}"
         ) from error
+    
+def get_dividends(symbol: str, limit: int = 10) -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
+    limit = max(1, min(limit, 100))
+
+    return get_or_set_cache(
+        key=f"dividends:{symbol}:{limit}",
+        fetch_function=lambda: _fetch_dividends(symbol, limit),
+        ttl_seconds=21600,
+    )

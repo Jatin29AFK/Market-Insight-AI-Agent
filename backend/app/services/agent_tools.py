@@ -23,6 +23,27 @@ def to_pretty_json(data) -> str:
     """
     return json.dumps(data, indent=2, default=str)
 
+def safe_tool_response(tool_name: str, callback):
+    """
+    Makes tool execution safe.
+
+    If a tool fails, we return structured error JSON instead of crashing
+    the entire LangGraph agent workflow.
+    """
+    try:
+        return to_pretty_json(callback())
+
+    except Exception as error:
+        return to_pretty_json({
+            "tool": tool_name,
+            "success": False,
+            "error": str(error),
+            "message": (
+                "This tool could not fetch data right now. "
+                "Explain this limitation clearly to the user."
+            ),
+        })
+
 
 class SymbolInput(BaseModel):
     symbol: str = Field(
@@ -74,8 +95,10 @@ def get_stock_price_tool(symbol: str) -> str:
     Use this tool when the user asks about latest stock price, current price,
     previous close, day high, day low, currency, or market cap.
     """
-    return to_pretty_json(get_stock_price(symbol))
-
+    return safe_tool_response(
+        "get_company_info_tool",
+        lambda: get_company_info(symbol),
+    )
 
 @tool(args_schema=SymbolInput)
 def get_company_info_tool(symbol: str) -> str:
@@ -83,7 +106,10 @@ def get_company_info_tool(symbol: str) -> str:
     Use this tool when the user asks about company overview, business summary,
     sector, industry, website, or what the company does.
     """
-    return to_pretty_json(get_company_info(symbol))
+    return safe_tool_response(
+    "get_company_info_tool",
+    lambda: get_company_info(symbol),
+)
 
 
 @tool(args_schema=HistoricalInput)
@@ -92,7 +118,10 @@ def get_historical_data_tool(symbol: str, period: str = "1mo") -> str:
     Use this tool when the user asks about price movement, trend, historical prices,
     past performance, recent movement, or stock movement over a time period.
     """
-    return to_pretty_json(get_historical_data(symbol=symbol, period=period))
+    return safe_tool_response(
+    "get_historical_data_tool",
+    lambda: get_historical_data(symbol=symbol, period=period),
+)
 
 
 @tool(args_schema=SymbolInput)
@@ -102,7 +131,10 @@ def get_stock_snapshot_tool(symbol: str) -> str:
     valuation overview, key metrics, PE ratio, EPS, revenue growth, profit margin,
     52-week high/low, or combined company and price snapshot.
     """
-    return to_pretty_json(get_stock_snapshot(symbol))
+    return safe_tool_response(
+    "get_stock_snapshot_tool",
+    lambda: get_stock_snapshot(symbol),
+)
 
 
 @tool(args_schema=FinancialInput)
@@ -115,13 +147,14 @@ def get_financial_statements_tool(
     Use this tool when the user asks about financial health, revenue, profit,
     net income, balance sheet, assets, liabilities, debt, cash flow, or company fundamentals.
     """
-    return to_pretty_json(
-        get_financial_statements(
-            symbol=symbol,
-            statement_type=statement_type,
-            limit=limit
-        )
-    )
+    return safe_tool_response(
+    "get_financial_statements_tool",
+    lambda: get_financial_statements(
+        symbol=symbol,
+        statement_type=statement_type,
+        limit=limit,
+    ),
+)
 
 
 @tool(args_schema=LimitInput)
@@ -130,7 +163,10 @@ def get_recommendations_tool(symbol: str, limit: int = 10) -> str:
     Use this tool when the user asks about analyst recommendations, analyst rating,
     strong buy, buy, hold, sell, or market opinion.
     """
-    return to_pretty_json(get_recommendations(symbol=symbol, limit=limit))
+    return safe_tool_response(
+    "get_recommendations_tool",
+    lambda: get_recommendations(symbol=symbol, limit=limit),
+)
 
 
 @tool(args_schema=LimitInput)
@@ -139,20 +175,11 @@ def get_dividends_tool(symbol: str, limit: int = 10) -> str:
     Use this tool when the user asks about dividend history, dividend payments,
     income from stock, payout, or whether a company pays dividends.
     """
-    return to_pretty_json(get_dividends(symbol=symbol, limit=limit))
+    return safe_tool_response(
+    "get_dividends_tool",
+    lambda: get_dividends(symbol=symbol, limit=limit),
+)
 
-
-def safe_tool_response(tool_name: str, callback):
-    try:
-        return to_pretty_json(callback())
-
-    except Exception as error:
-        return to_pretty_json({
-            "tool": tool_name,
-            "success": False,
-            "error": str(error),
-            "message": "This tool could not fetch data right now. Explain this limitation clearly to the user."
-        })
 
 STOCK_AGENT_TOOLS = [
     get_stock_price_tool,

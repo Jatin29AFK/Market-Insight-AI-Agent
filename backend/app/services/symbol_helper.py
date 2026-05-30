@@ -1,12 +1,3 @@
-from app.services.symbol_helper import suggest_symbol
-
-suggestion = suggest_symbol(symbol)
-
-if suggestion:
-    raise InvalidSymbolError(
-        f"No price data found for '{symbol}'. Did you mean '{suggestion}'?"
-    )
-
 COMMON_SYMBOL_FIXES = {
     "TESLA": "TSLA",
     "GOOGLE": "GOOGL",
@@ -14,10 +5,16 @@ COMMON_SYMBOL_FIXES = {
     "APPLE": "AAPL",
     "MICROSOFT": "MSFT",
     "NVIDIA": "NVDA",
+    "META": "META",
+    "AMAZON": "AMZN",
+
     "RELIANCE": "RELIANCE.NS",
     "TCS": "TCS.NS",
     "INFY": "INFY.NS",
     "HDFC": "HDFCBANK.NS",
+    "HDFCBANK": "HDFCBANK.NS",
+    "SBIN": "SBIN.NS",
+    "ICICI": "ICICIBANK.NS",
 }
 
 
