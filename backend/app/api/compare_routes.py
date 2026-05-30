@@ -23,4 +23,10 @@ def compare_stock_snapshots(request: CompareStocksRequest):
             detail="You can compare up to 5 stocks at a time.",
         )
 
-    return compare_stocks(symbols)
+    try:
+        return compare_stocks(symbols)
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error while comparing stocks: {str(error)}",
+        )

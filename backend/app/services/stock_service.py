@@ -197,11 +197,7 @@ def _fetch_stock_price(symbol: str) -> Dict[str, Any]:
         )
 
         if history is None or history.empty:
-            raise InvalidSymbolError(
-                f"No price data found for '{symbol}'. "
-                f"Please check the ticker symbol. "
-                f"Examples: AAPL, MSFT, TSLA, RELIANCE.NS, TCS.NS"
-        )
+            raise InvalidSymbolError(build_invalid_symbol_message(symbol))
 
         latest_row = history.iloc[-1]
 
@@ -429,10 +425,7 @@ def _fetch_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
         )
 
         if data is None or data.empty:
-            raise ValueError(
-                f"No historical data found for '{symbol}'. "
-                f"Please check the ticker symbol or period."
-            )
+            raise InvalidSymbolError(build_invalid_symbol_message(symbol))
 
         data = data.reset_index()
 
@@ -454,11 +447,11 @@ def _fetch_historical_data(symbol: str, period: str = "1mo") -> Dict[str, Any]:
             "records": records
         }
 
-    except ValueError:
+    except InvalidSymbolError:
         raise
 
     except Exception as error:
-        raise ValueError(
+        raise ExternalDataError(
             f"Unable to fetch historical data for symbol: {symbol}. Error: {str(error)}"
         ) from error
 

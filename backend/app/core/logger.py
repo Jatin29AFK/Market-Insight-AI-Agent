@@ -11,6 +11,10 @@ def configure_logging() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("groq").setLevel(logging.WARNING)
+
 
 def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)

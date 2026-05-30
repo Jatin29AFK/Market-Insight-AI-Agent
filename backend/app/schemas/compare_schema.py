@@ -1,10 +1,10 @@
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class CompareStocksRequest(BaseModel):
-    symbols: list[str] = Field(..., min_length=1, max_length=5)
+    symbols: list[str]
 
 
 class CompareStocksResponse(BaseModel):

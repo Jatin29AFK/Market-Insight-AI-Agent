@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 
 from app.core.logger import get_logger
+from app.core.exceptions import StockAppError
 from app.services.stock_service import get_stock_snapshot, normalize_symbol
 
 
@@ -65,6 +66,13 @@ def compare_stocks(symbols: List[str]) -> Dict[str, Any]:
             record = _build_compare_record(symbol)
             stocks.append(record)
             successful_symbols.append(symbol)
+        except StockAppError as error:
+            logger.warning("compare partial failure symbol=%s error=%s", symbol, error)
+            stocks.append({
+                "symbol": symbol,
+                "error": str(error) or error.user_message,
+            })
+            failed_symbols.append(symbol)
         except Exception as error:
             logger.exception("compare failed symbol=%s error=%s", symbol, error)
             stocks.append({
