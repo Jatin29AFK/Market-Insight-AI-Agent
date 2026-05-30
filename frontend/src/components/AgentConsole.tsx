@@ -34,6 +34,18 @@ import { StreamingAnswerCard } from "@/components/StreamingAnswerCard";
 import { StreamingStatus } from "@/components/StreamingStatus";
 import { DashboardSkeleton } from "@/components/DashboardSkeleton";
 
+function getFriendlyErrorMessage(message: string) {
+  const cleanMessage = message.trim();
+
+  if (!cleanMessage || cleanMessage === "Not Found") {
+    return (
+      "No matching market data was found. Check the ticker symbol, use .NS for Indian stocks, and make sure the backend is running."
+    );
+  }
+
+  return cleanMessage;
+}
+
 export function AgentConsole() {
   const [symbol, setSymbol] = useState("AAPL");
   const [question, setQuestion] = useState(
@@ -94,10 +106,10 @@ export function AgentConsole() {
 
       setIsLoadingDashboard(true);
 
-      const dashboardPromise = Promise.all([
-        getStockSnapshot(cleanSymbol),
-        getStockHistory(cleanSymbol, selectedPeriod),
-      ]);
+      const snapshotPromise = settlePromise(getStockSnapshot(cleanSymbol));
+      const historyPromise = settlePromise(
+        getStockHistory(cleanSymbol, selectedPeriod)
+      );
 
       setIsStreaming(true);
 
@@ -138,16 +150,25 @@ export function AgentConsole() {
             }
 
             if (event.type === "error") {
-              setErrorMessage(event.message);
+              setErrorMessage(getFriendlyErrorMessage(event.message));
             }
           }
         )
       );
 
-      const [snapshotResponse, historyResponse] = await dashboardPromise;
+      const [snapshotResponse, historyResponse] = await Promise.all([
+        snapshotPromise,
+        historyPromise,
+      ]);
 
-      setSnapshot(snapshotResponse);
-      setHistory(historyResponse);
+      if (snapshotResponse.ok) {
+        setSnapshot(snapshotResponse.value);
+      }
+
+      if (historyResponse.ok) {
+        setHistory(historyResponse.value);
+      }
+
       setIsLoadingDashboard(false);
 
       const streamResult = await streamResultPromise;
@@ -158,7 +179,7 @@ export function AgentConsole() {
     } catch (error) {
       const message =
         error instanceof Error
-          ? error.message
+          ? getFriendlyErrorMessage(error.message)
           : "Something went wrong. Please try again.";
 
       setErrorMessage(message);
@@ -173,7 +194,7 @@ export function AgentConsole() {
   }
 
   return (
-    <main className="mx-auto grid w-full max-w-7xl gap-6 px-6 pb-10 lg:grid-cols-[420px_1fr]">
+    <main className="grid w-full gap-6 px-4 pb-10 md:px-8 lg:grid-cols-[420px_1fr]">
       <aside className="premium-card h-fit rounded-[2rem] p-6 lg:sticky lg:top-6">
         <div className="mb-6">
           <div className="mb-3 flex items-center gap-2">

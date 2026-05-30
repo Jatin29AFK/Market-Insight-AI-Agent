@@ -148,7 +148,7 @@ export function WatchlistCompare() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-6 pb-12">
+    <section className="w-full px-4 pb-12 md:px-8">
       <div className="premium-card rounded-[2rem] p-6 md:p-8">
         <div className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
           <div>

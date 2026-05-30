@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 
 from app.schemas.agent_schema import AgentChatRequest, AgentChatResponse
 from app.services.agent_service import (
+    format_agent_error_message,
     run_market_agent,
     stream_market_agent_response,
 )
@@ -25,7 +26,10 @@ def chat_with_market_agent(request: AgentChatRequest):
     except Exception as error:
         raise HTTPException(
             status_code=500,
-            detail=f"Unexpected error while running market agent: {str(error)}"
+            detail=(
+                "Unexpected error while running market agent: "
+                f"{format_agent_error_message(error)}"
+            )
         )
 
 
