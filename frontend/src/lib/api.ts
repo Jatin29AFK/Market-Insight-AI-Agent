@@ -7,8 +7,11 @@ import type {
 } from "@/types/agent";
 import type { CompareStocksResponse } from "@/types/compare";
 
+const DIRECT_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_DIRECT_BACKEND === "true" && DIRECT_API_BASE_URL
+    ? DIRECT_API_BASE_URL
+    : "/api/backend";
 
 function getResponseDetail(data: unknown) {
   if (
@@ -40,7 +43,7 @@ async function postJson<TResponse, TPayload>(
     });
   } catch {
     throw new Error(
-      `Could not reach the Market Insight backend at ${url}. Start FastAPI and check NEXT_PUBLIC_API_BASE_URL.`
+      `Could not reach the Market Insight backend through ${url}. Start FastAPI and check BACKEND_API_BASE_URL.`
     );
   }
 
@@ -110,7 +113,7 @@ export async function streamMarketAgent(
     });
   } catch {
     throw new Error(
-      `Could not reach the Market Insight backend at ${url}. Start FastAPI and check NEXT_PUBLIC_API_BASE_URL.`
+      `Could not reach the Market Insight backend through ${url}. Start FastAPI and check BACKEND_API_BASE_URL.`
     );
   }
 
