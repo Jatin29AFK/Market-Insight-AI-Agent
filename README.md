@@ -13,6 +13,16 @@ Add screenshots here before publishing the portfolio repo:
 - Stock comparison watchlist
 - Markdown report export
 
+Live URLs:
+
+- Frontend: `https://your-vercel-domain.vercel.app`
+- Backend: `https://your-render-backend-url.onrender.com`
+
+Deployment and demo docs:
+
+- [Deployment Guide](docs/deployment-guide.md)
+- [Demo Checklist](docs/demo-checklist.md)
+
 ## Features
 
 - LangGraph agent with financial tool calling
@@ -76,10 +86,10 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 127.0.0.1 --port 8057 --reload
 ```
 
-Backend runs by default at `http://127.0.0.1:8000`.
+Backend runs locally at `http://127.0.0.1:8057` with the command above.
 
 ## Frontend Setup
 
@@ -107,10 +117,49 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 Frontend `frontend/.env.local`:
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+BACKEND_API_BASE_URL=http://127.0.0.1:8057
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8057
+NEXT_PUBLIC_DIRECT_BACKEND=false
 ```
 
 Do not commit `.env` or `.env.local`. Use the included `.env.example` files as templates.
+Actual API keys must be configured only in hosting dashboards such as Render, never in committed files.
+
+## Deployment
+
+Backend:
+
+- Platform: Render
+- Service type: Web Service
+- Root directory: `backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+Frontend:
+
+- Platform: Vercel
+- Framework: Next.js
+- Root directory: `frontend`
+- Install command: `npm install`
+- Build command: `npm run build`
+
+Required production backend environment variables:
+
+```env
+GROQ_API_KEY=<set in Render dashboard only>
+GROQ_MODEL=llama-3.3-70b-versatile
+ALLOWED_ORIGINS=https://your-vercel-domain.vercel.app
+```
+
+Required production frontend environment variables:
+
+```env
+BACKEND_API_BASE_URL=https://your-render-backend-url.onrender.com
+NEXT_PUBLIC_API_BASE_URL=https://your-render-backend-url.onrender.com
+NEXT_PUBLIC_DIRECT_BACKEND=false
+```
+
+The frontend uses a same-origin Next.js proxy route by default, so browser requests go to `/api/backend/...` and the Next server forwards them to the FastAPI backend. See the [Deployment Guide](docs/deployment-guide.md) for Render/Vercel setup details.
 
 ## API Endpoints
 
@@ -153,6 +202,17 @@ Do not commit `.env` or `.env.local`. Use the included `.env.example` files as t
 - Backend TTL caching for market-data performance
 - Multi-stock compare and markdown report export
 - Clear safety boundaries for financial AI
+
+## Recruiter Demo Flow
+
+1. Open the live app.
+2. Select `AAPL`.
+3. Ask: `Give me a simple overview of business, price and risks.`
+4. Show the dashboard snapshot and historical chart.
+5. Show the streaming answer.
+6. Show tools used and the trace timeline.
+7. Open the compare section and compare `AAPL`, `MSFT`, and `NVDA`.
+8. Download the markdown report.
 
 ## Future Improvements
 
