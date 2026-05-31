@@ -14,6 +14,8 @@ LOCAL_DEV_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
+LOCAL_DEV_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1):\d+$"
+
 
 def get_allowed_origins() -> list[str]:
     origins = os.getenv(
@@ -35,6 +37,10 @@ class Settings(BaseModel):
     APP_VERSION: str = "1.0.0"
 
     ALLOWED_ORIGINS: list[str] = get_allowed_origins()
+    ALLOWED_ORIGIN_REGEX: str = os.getenv(
+        "ALLOWED_ORIGIN_REGEX",
+        LOCAL_DEV_ORIGIN_REGEX,
+    )
 
     GROQ_API_KEY: str | None = os.getenv("GROQ_API_KEY")
     GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
