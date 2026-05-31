@@ -73,7 +73,7 @@ export function AgentConsole() {
     isStreaming;
   const consoleGridClass = hasInsightContent
     ? "lg:grid-cols-[420px_minmax(0,1fr)]"
-    : "lg:grid-cols-[minmax(500px,620px)_minmax(360px,760px)] lg:justify-center";
+    : "lg:grid-cols-[minmax(500px,620px)_minmax(0,1fr)]";
 
   const [selectedPeriod, setSelectedPeriod] = useState("6mo");
 
