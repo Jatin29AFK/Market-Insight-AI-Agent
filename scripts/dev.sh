@@ -8,6 +8,8 @@ BACKEND_PYTHON="$BACKEND_DIR/venv/bin/python"
 BACKEND_HOST="${BACKEND_HOST:-127.0.0.1}"
 BACKEND_PORT="${BACKEND_PORT:-8057}"
 BACKEND_HEALTH_URL="http://$BACKEND_HOST:$BACKEND_PORT/health"
+FRONTEND_HOST="${FRONTEND_HOST:-127.0.0.1}"
+FRONTEND_PORTS="${FRONTEND_PORTS:-3000 3001 3002}"
 
 if [ ! -x "$BACKEND_PYTHON" ]; then
   echo "Backend virtualenv not found at backend/venv."
@@ -26,6 +28,28 @@ cleanup() {
 }
 
 trap cleanup EXIT INT TERM
+
+find_existing_frontend() {
+  "$BACKEND_PYTHON" - "$FRONTEND_HOST" "$FRONTEND_PORTS" <<'PY'
+import sys
+import urllib.request
+
+host = sys.argv[1]
+ports = sys.argv[2].split()
+
+for port in ports:
+    url = f"http://{host}:{port}/"
+    try:
+        with urllib.request.urlopen(url, timeout=1) as response:
+            if 200 <= response.status < 500:
+                print(url)
+                sys.exit(0)
+    except Exception:
+        pass
+
+sys.exit(1)
+PY
+}
 
 cd "$BACKEND_DIR"
 if "$BACKEND_PYTHON" -c '
@@ -48,11 +72,22 @@ else
 fi
 
 cd "$FRONTEND_DIR"
-npm run dev &
-FRONTEND_PID=$!
-
-if [ -n "${BACKEND_PID:-}" ]; then
-  wait -n "$BACKEND_PID" "$FRONTEND_PID"
+if FRONTEND_URL="$(find_existing_frontend)"; then
+  echo "Using existing frontend at $FRONTEND_URL"
 else
+  npm run dev:next &
+  FRONTEND_PID=$!
+fi
+
+if [ -n "${BACKEND_PID:-}" ] && [ -n "${FRONTEND_PID:-}" ]; then
+  wait -n "$BACKEND_PID" "$FRONTEND_PID"
+elif [ -n "${BACKEND_PID:-}" ]; then
+  wait "$BACKEND_PID"
+elif [ -n "${FRONTEND_PID:-}" ]; then
   wait "$FRONTEND_PID"
+else
+  echo "Backend and frontend are already running. Press Ctrl+C to exit."
+  while sleep 3600; do
+    :
+  done
 fi

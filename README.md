@@ -102,12 +102,12 @@ npm run dev
 
 Frontend runs by default at `http://localhost:3000`.
 
-To run both the FastAPI backend and Next.js frontend together during local
-development:
+During local development, `npm run dev` starts both the FastAPI backend and
+the Next.js frontend. To run only the Next.js frontend, use `npm run dev:next`.
 
 ```bash
 cd frontend
-npm run dev:full
+npm run dev
 ```
 
 ## Environment Variables
