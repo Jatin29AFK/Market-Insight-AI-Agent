@@ -59,6 +59,19 @@ After Vercel deploys, copy the exact production frontend URL and add it to Rende
 ALLOWED_ORIGINS=https://your-vercel-domain.vercel.app
 ```
 
+### Important Monorepo Note
+
+This repository keeps the deployable Next.js app inside `frontend/`.
+
+If the Vercel project is pointed at the repository root instead of `frontend/`, the live site can return `404 Not Found` at `/` even when the app works locally. Fix that in Vercel:
+
+1. Open the Vercel project
+2. Go to `Settings -> General`
+3. Set `Root Directory` to `frontend`
+4. Redeploy the latest commit
+
+A root-level `vercel.json` is included in this repo as a safety net for repo-root imports, but the preferred Vercel setup is still `Root Directory = frontend`.
+
 ## Common Errors
 
 ### Browser Shows A CORS Error
@@ -73,6 +86,12 @@ ALLOWED_ORIGINS=https://your-vercel-domain.vercel.app
 - Confirm root directory is `backend`.
 - Confirm start command is `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 - Confirm all dependencies are installed from `backend/requirements.txt`.
+
+### Vercel Root Returns 404
+
+- Confirm the Vercel project `Root Directory` is `frontend`.
+- If the project was imported before that setting was corrected, trigger a fresh redeploy.
+- Confirm the deployment logs show the Next.js app from `frontend/` being built instead of the repository root.
 
 ### Agent Fails Or Streams Errors
 

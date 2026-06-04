@@ -4,19 +4,10 @@ A full-stack agentic stock research assistant that combines live market data, La
 
 > Safety: Market Insight AI is for educational research only, not financial advice. It does not provide buy, sell, or hold recommendations or guarantee returns.
 
-## Demo Screenshots
-
-Add screenshots here before publishing the portfolio repo:
-
-- Dashboard overview
-- Streaming agent response with trace
-- Stock comparison watchlist
-- Markdown report export
-
 Live URLs:
 
-- Frontend: `https://your-vercel-domain.vercel.app`
-- Backend: `https://your-render-backend-url.onrender.com`
+- Frontend: `https://market-insight-ai-agent.vercel.app/`
+- Backend: `https://market-insight-ai-agent.onrender.com`
 
 Deployment and demo docs:
 
@@ -135,21 +126,9 @@ Actual API keys must be configured only in hosting dashboards such as Render, ne
 
 ## Deployment
 
-Backend:
+Backend:Render
 
-- Platform: Render
-- Service type: Web Service
-- Root directory: `backend`
-- Build command: `pip install -r requirements.txt`
-- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-
-Frontend:
-
-- Platform: Vercel
-- Framework: Next.js
-- Root directory: `frontend`
-- Install command: `npm install`
-- Build command: `npm run build`
+Frontend:Vercel
 
 Required production backend environment variables:
 
@@ -168,6 +147,8 @@ NEXT_PUBLIC_DIRECT_BACKEND=false
 ```
 
 The frontend uses a same-origin Next.js proxy route by default, so browser requests go to `/api/backend/...` and the Next server forwards them to the FastAPI backend. See the [Deployment Guide](docs/deployment-guide.md) for Render/Vercel setup details.
+
+If the live Vercel site shows `404 Not Found` at `/`, the usual cause is that the Vercel project was imported from the repository root instead of the `frontend` directory. Set the Vercel project `Root Directory` to `frontend` and redeploy.
 
 ## API Endpoints
 
@@ -199,28 +180,6 @@ The frontend uses a same-origin Next.js proxy route by default, so browser reque
    - Risks / Limitations
    - Educational Note
 6. The frontend displays the answer, tools used, trace timeline, and export actions.
-
-## What Makes This Project Strong For Interviews
-
-- Tool-calling agent architecture with LangGraph
-- Grounded market data instead of unsupported AI guesses
-- Streaming response UX
-- Transparent trace and tool usage badges
-- Dashboard visualization with Recharts
-- Backend TTL caching for market-data performance
-- Multi-stock compare and markdown report export
-- Clear safety boundaries for financial AI
-
-## Recruiter Demo Flow
-
-1. Open the live app.
-2. Select `AAPL`.
-3. Ask: `Give me a simple overview of business, price and risks.`
-4. Show the dashboard snapshot and historical chart.
-5. Show the streaming answer.
-6. Show tools used and the trace timeline.
-7. Open the compare section and compare `AAPL`, `MSFT`, and `NVDA`.
-8. Download the markdown report.
 
 ## Future Improvements
 
