@@ -71,6 +71,12 @@ If the Vercel project is pointed at the repository root instead of `frontend/`, 
 4. Redeploy the latest commit
 
 A root-level `vercel.json` is included in this repo as a safety net for repo-root imports, but the preferred Vercel setup is still `Root Directory = frontend`.
+When `Root Directory` is `frontend`, the Vercel commands should stay plain:
+
+- Install command: `npm install`
+- Build command: `npm run build`
+
+They should not include `cd frontend && ...`, because Vercel already runs them from inside the `frontend` directory.
 
 ## Common Errors
 

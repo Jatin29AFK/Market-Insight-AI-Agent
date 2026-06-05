@@ -149,6 +149,7 @@ NEXT_PUBLIC_DIRECT_BACKEND=false
 The frontend uses a same-origin Next.js proxy route by default, so browser requests go to `/api/backend/...` and the Next server forwards them to the FastAPI backend. See the [Deployment Guide](docs/deployment-guide.md) for Render/Vercel setup details.
 
 If the live Vercel site shows `404 Not Found` at `/`, the usual cause is that the Vercel project was imported from the repository root instead of the `frontend` directory. Set the Vercel project `Root Directory` to `frontend` and redeploy.
+If Vercel shows `Error: Command "cd frontend && npm install" exited with 1`, remove the `cd frontend &&` prefix from the Vercel Install/Build commands because the project is already running inside `frontend`.
 
 ## API Endpoints
 
