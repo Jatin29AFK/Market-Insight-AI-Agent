@@ -27,6 +27,14 @@ type RouteContext = {
   }>;
 };
 
+const RESPONSE_HEADERS_TO_DROP = [
+  "content-encoding",
+  "content-length",
+  "transfer-encoding",
+  "connection",
+  "keep-alive",
+];
+
 function getBackendUrl(baseUrl: string, path: string[], requestUrl: string) {
   const sourceUrl = new URL(requestUrl);
   const backendUrl = new URL(path.join("/"), `${baseUrl}/`);
@@ -38,6 +46,18 @@ function getBackendUrl(baseUrl: string, path: string[], requestUrl: string) {
 
 function shouldTryNextBackend(response: Response) {
   return response.status === 404 || response.status === 405;
+}
+
+function getProxyResponseHeaders(response: Response) {
+  const headers = new Headers(response.headers);
+
+  // The fetch runtime may decode or re-chunk upstream responses, so these
+  // transport headers can become incorrect if we forward them as-is.
+  for (const header of RESPONSE_HEADERS_TO_DROP) {
+    headers.delete(header);
+  }
+
+  return headers;
 }
 
 async function proxyRequest(request: Request, context: RouteContext) {
@@ -79,7 +99,7 @@ async function proxyRequest(request: Request, context: RouteContext) {
       return new Response(response.body, {
         status: response.status,
         statusText: response.statusText,
-        headers: response.headers,
+        headers: getProxyResponseHeaders(response),
       });
     } catch {
       continue;
