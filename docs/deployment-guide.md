@@ -7,6 +7,19 @@ Market Insight AI is designed to deploy as two services:
 
 Do not put real API keys in the repository. Add production secrets only in the Render and Vercel dashboards.
 
+## Fresh Deploy Order
+
+If you want the cleanest setup, create brand-new services in this order:
+
+1. Create a fresh Render backend first.
+2. Copy the new Render backend URL.
+3. Create a fresh Vercel frontend that points to that Render URL.
+4. Copy the final Vercel production URL.
+5. Go back to Render and update `ALLOWED_ORIGINS` with the exact Vercel URL.
+6. Redeploy Render once more.
+
+This order avoids the most common problem: Vercel is deployed, but Render is still allowing the wrong frontend origin.
+
 ## Backend On Render
 
 Recommended service type:
@@ -16,16 +29,53 @@ Recommended service type:
 - Build command: `pip install -r requirements.txt`
 - Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 - Health check path: `/health`
+- Python version: `3.12.3`
 
 Required environment variables:
 
 ```env
+PYTHON_VERSION=3.12.3
 GROQ_API_KEY=<set in Render dashboard only>
 GROQ_MODEL=llama-3.3-70b-versatile
 ALLOWED_ORIGINS=https://your-vercel-domain.vercel.app
 ```
 
 This repo also includes `backend/render.yaml` for Render Blueprint setup. It uses safe placeholders and marks secrets as dashboard-managed.
+
+### Render Fresh Setup Step By Step
+
+1. Push your latest working code to GitHub.
+2. Log in to Render and click `New +`.
+3. Choose one of these:
+   - `Web Service` if you want to enter settings manually.
+   - `Blueprint` if you want Render to read `backend/render.yaml`.
+4. Connect the GitHub repository that contains this project.
+5. If you picked `Web Service`, enter these values:
+   - Name: `market-insight-ai-backend` or any name you prefer
+   - Runtime: `Python 3`
+   - Branch: your deploy branch, usually `main`
+   - Root Directory: `backend`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - Health Check Path: `/health`
+6. In the Render environment variables section, add:
+   - `PYTHON_VERSION=3.12.3`
+   - `GROQ_API_KEY=your_real_key`
+   - `GROQ_MODEL=llama-3.3-70b-versatile`
+   - `ALLOWED_ORIGINS=https://placeholder.vercel.app`
+7. Create the service and wait for the first deploy to finish.
+8. Open the new Render service URL in the browser:
+   - `https://your-service-name.onrender.com/health`
+9. Confirm it returns:
+
+```json
+{"status":"healthy"}
+```
+
+10. Save the base backend URL. Example:
+    - `https://market-insight-ai-backend.onrender.com`
+
+If the deploy fails before the service starts, the first things to re-check are `Root Directory`, `Build Command`, `Start Command`, and `PYTHON_VERSION`.
 
 ### Render Notes
 
@@ -53,11 +103,38 @@ NEXT_PUBLIC_DIRECT_BACKEND=false
 
 The app uses a same-origin Next.js proxy route at `/api/backend/...` by default. This keeps browser CORS out of the main app flow. `NEXT_PUBLIC_API_BASE_URL` is kept for compatibility and can be used for direct browser-to-backend calls only when `NEXT_PUBLIC_DIRECT_BACKEND=true`.
 
+### Vercel Fresh Setup Step By Step
+
+1. Log in to Vercel and click `Add New... -> Project`.
+2. Import the same GitHub repository.
+3. During import, make sure the project points to the Next.js app inside `frontend/`.
+4. Set these project values:
+   - Framework Preset: `Next.js`
+   - Root Directory: `frontend`
+   - Install Command: `npm install`
+   - Build Command: `npm run build`
+5. Add these environment variables before the first deploy:
+
+```env
+BACKEND_API_BASE_URL=https://your-render-backend-url.onrender.com
+NEXT_PUBLIC_API_BASE_URL=https://your-render-backend-url.onrender.com
+NEXT_PUBLIC_DIRECT_BACKEND=false
+```
+
+6. Replace the example URL with the real backend URL you saved from Render.
+7. Click `Deploy`.
+8. After the deploy finishes, open the Vercel production URL.
+9. Confirm the home page loads and the app is not showing `404 Not Found`.
+10. Copy the exact Vercel production URL. Example:
+    - `https://market-insight-ai-agent.vercel.app`
+
 After Vercel deploys, copy the exact production frontend URL and add it to Render:
 
 ```env
 ALLOWED_ORIGINS=https://your-vercel-domain.vercel.app
 ```
+
+Then redeploy Render so the new CORS value is active.
 
 ### Important Monorepo Note
 
@@ -84,6 +161,7 @@ They should not include `cd frontend && ...`, because Vercel already runs them f
 
 - Confirm the frontend is using the same-origin proxy and requests look like `/api/backend/...`.
 - If using direct backend calls, confirm Render `ALLOWED_ORIGINS` includes the exact Vercel URL.
+- Confirm the exact protocol and host match, for example `https://my-app.vercel.app`.
 - Redeploy or restart the Render service after changing environment variables.
 
 ### Backend Health Fails
@@ -92,6 +170,7 @@ They should not include `cd frontend && ...`, because Vercel already runs them f
 - Confirm root directory is `backend`.
 - Confirm start command is `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 - Confirm all dependencies are installed from `backend/requirements.txt`.
+- Confirm `PYTHON_VERSION=3.12.3` is set if Render picked a newer default Python version.
 
 ### Vercel Root Returns 404
 
@@ -123,6 +202,7 @@ Backend:
 Frontend:
 
 - Home page loads on Vercel.
+- `GET /api/backend/health` on the Vercel domain returns a healthy backend response.
 - Dashboard and chart render for `AAPL`.
 - Streaming answer appears.
 - Tool badges and trace timeline appear.
