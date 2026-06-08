@@ -6,7 +6,7 @@ A full-stack agentic stock research assistant that combines live market data, La
 
 Live URLs:
 
-- Frontend: `https://market-insight-ai-agent.vercel.app/`
+- Frontend: `https://market-insight-ai-agent.vercel.app`
 - Backend: `https://market-insight-ai-agent.onrender.com`
 
 Deployment and demo docs:
