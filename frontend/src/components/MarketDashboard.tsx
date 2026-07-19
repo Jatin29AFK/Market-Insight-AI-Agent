@@ -17,7 +17,7 @@ export function MarketDashboard({ snapshot, history }: MarketDashboardProps) {
   }
 
   return (
-    <section className="mb-6 space-y-6">
+    <section className="mb-6 min-w-0 space-y-6">
       {snapshot && <SnapshotCards snapshot={snapshot} />}
 
       {history && (

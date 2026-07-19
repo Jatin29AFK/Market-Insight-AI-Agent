@@ -282,6 +282,56 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
         ttl_seconds=60,
     )
 
+def _fetch_profile_bundle(symbol: str) -> Dict[str, Any]:
+    """
+    Fetches the heavier Yahoo profile payload once and reuses it for
+    company info plus key metrics.
+    """
+    symbol = normalize_symbol(symbol)
+    ticker = yf.Ticker(symbol)
+
+    try:
+        info = ticker.info
+
+        return {
+            "company": {
+                "symbol": symbol,
+                "name": info.get("longName"),
+                "sector": info.get("sector"),
+                "industry": info.get("industry"),
+                "website": info.get("website"),
+                "summary": info.get("longBusinessSummary"),
+            },
+            "key_metrics": {
+                "market_cap": safe_int(info.get("marketCap")),
+                "trailing_pe": safe_round(info.get("trailingPE")),
+                "forward_pe": safe_round(info.get("forwardPE")),
+                "eps": safe_round(info.get("trailingEps")),
+                "dividend_yield": safe_round(info.get("dividendYield")),
+                "profit_margins": safe_round(info.get("profitMargins")),
+                "revenue_growth": safe_round(info.get("revenueGrowth")),
+                "fifty_two_week_high": safe_round(info.get("fiftyTwoWeekHigh")),
+                "fifty_two_week_low": safe_round(info.get("fiftyTwoWeekLow")),
+                "average_volume": safe_int(info.get("averageVolume")),
+                "beta": safe_round(info.get("beta")),
+            },
+        }
+
+    except Exception as error:
+        raise ExternalDataError(
+            f"Unable to fetch company profile for symbol: {symbol}. Error: {str(error)}"
+        ) from error
+
+def get_profile_bundle(symbol: str) -> Dict[str, Any]:
+    symbol = normalize_symbol(symbol)
+    logger.info("profile bundle requested symbol=%s", symbol)
+
+    return get_or_set_cache(
+        key=f"profile_bundle:{symbol}",
+        fetch_function=lambda: _fetch_profile_bundle(symbol),
+        ttl_seconds=3600,
+    )
+
 def _fetch_company_info(symbol: str) -> Dict[str, Any]:
     """
     Fetches company profile information.
@@ -294,24 +344,7 @@ def _fetch_company_info(symbol: str) -> Dict[str, Any]:
     - Business summary
     """
     symbol = normalize_symbol(symbol)
-    ticker = yf.Ticker(symbol)
-
-    try:
-        info = ticker.info
-
-        return {
-            "symbol": symbol,
-            "name": info.get("longName"),
-            "sector": info.get("sector"),
-            "industry": info.get("industry"),
-            "website": info.get("website"),
-            "summary": info.get("longBusinessSummary"),
-        }
-
-    except Exception as error:
-        raise ValueError(
-            f"Unable to fetch company info for symbol: {symbol}. Error: {str(error)}"
-        ) from error
+    return get_profile_bundle(symbol)["company"]
 
 def get_company_info(symbol: str) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
@@ -339,29 +372,7 @@ def _fetch_key_metrics(symbol: str) -> Dict[str, Any]:
     This makes your project look more like a real analysis product.
     """
     symbol = normalize_symbol(symbol)
-    ticker = yf.Ticker(symbol)
-
-    try:
-        info = ticker.info
-
-        return {
-            "market_cap": safe_int(info.get("marketCap")),
-            "trailing_pe": safe_round(info.get("trailingPE")),
-            "forward_pe": safe_round(info.get("forwardPE")),
-            "eps": safe_round(info.get("trailingEps")),
-            "dividend_yield": safe_round(info.get("dividendYield")),
-            "profit_margins": safe_round(info.get("profitMargins")),
-            "revenue_growth": safe_round(info.get("revenueGrowth")),
-            "fifty_two_week_high": safe_round(info.get("fiftyTwoWeekHigh")),
-            "fifty_two_week_low": safe_round(info.get("fiftyTwoWeekLow")),
-            "average_volume": safe_int(info.get("averageVolume")),
-            "beta": safe_round(info.get("beta")),
-        }
-
-    except Exception as error:
-        raise ValueError(
-            f"Unable to fetch key metrics for symbol: {symbol}. Error: {str(error)}"
-        ) from error
+    return get_profile_bundle(symbol)["key_metrics"]
 
 def get_key_metrics(symbol: str) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
@@ -388,9 +399,20 @@ def get_stock_snapshot(symbol: str) -> Dict[str, Any]:
     symbol = normalize_symbol(symbol)
     logger.info("stock snapshot requested symbol=%s", symbol)
 
-    company = get_company_info(symbol)
     price = get_stock_price(symbol)
-    key_metrics = get_key_metrics(symbol)
+    company = {}
+    key_metrics = {}
+
+    try:
+        profile_bundle = get_profile_bundle(symbol)
+        company = profile_bundle.get("company", {})
+        key_metrics = profile_bundle.get("key_metrics", {})
+    except ExternalDataError as error:
+        logger.warning(
+            "snapshot profile fallback symbol=%s error=%s",
+            symbol,
+            error,
+        )
 
     return {
         "symbol": symbol,

@@ -367,7 +367,7 @@ export function AgentConsole() {
         </form>
       </aside>
 
-      <section className="flex min-h-full flex-col">
+      <section className="flex min-h-full min-w-0 flex-col">
                 {isLoadingDashboard && !snapshot && !history ? (
           <DashboardSkeleton />
         ) : (

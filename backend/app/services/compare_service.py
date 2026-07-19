@@ -1,8 +1,12 @@
 from typing import Any, Dict, List
 
 from app.core.logger import get_logger
-from app.core.exceptions import StockAppError
-from app.services.stock_service import get_stock_snapshot, normalize_symbol
+from app.core.exceptions import ExternalDataError, StockAppError
+from app.services.stock_service import (
+    get_profile_bundle,
+    get_stock_price,
+    normalize_symbol,
+)
 
 
 logger = get_logger(__name__)
@@ -25,13 +29,23 @@ COMPARE_FIELDS = [
 
 
 def _build_compare_record(symbol: str) -> Dict[str, Any]:
-    snapshot = get_stock_snapshot(symbol)
-    company = snapshot.get("company", {})
-    price = snapshot.get("price", {})
-    key_metrics = snapshot.get("key_metrics", {})
+    price = get_stock_price(symbol)
+    company: Dict[str, Any] = {}
+    key_metrics: Dict[str, Any] = {}
+
+    try:
+        profile_bundle = get_profile_bundle(symbol)
+        company = profile_bundle.get("company", {})
+        key_metrics = profile_bundle.get("key_metrics", {})
+    except ExternalDataError as error:
+        logger.warning(
+            "compare profile fallback symbol=%s error=%s",
+            symbol,
+            error,
+        )
 
     return {
-        "symbol": snapshot.get("symbol", symbol),
+        "symbol": price.get("symbol", symbol),
         "company_name": company.get("name"),
         "current_price": price.get("current_price"),
         "currency": price.get("currency"),

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.compare_schema import CompareStocksRequest, CompareStocksResponse
+from app.schemas.compare_schema import CompareStocksRequest
 from app.services.compare_service import compare_stocks
 
 
 router = APIRouter(prefix="/api/compare", tags=["Compare"])
 
 
-@router.post("/stocks", response_model=CompareStocksResponse)
+@router.post("/stocks")
 def compare_stock_snapshots(request: CompareStocksRequest):
     symbols = [symbol for symbol in request.symbols if symbol.strip()]
 
@@ -26,7 +26,21 @@ def compare_stock_snapshots(request: CompareStocksRequest):
     try:
         return compare_stocks(symbols)
     except Exception as error:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Unexpected error while comparing stocks: {str(error)}",
-        )
+        return {
+            "stocks": [
+                {
+                    "symbol": symbol.strip().upper(),
+                    "error": "Could not load comparison data right now. Please try again shortly.",
+                }
+                for symbol in symbols
+            ],
+            "summary": {
+                "requested_count": len(symbols),
+                "successful_count": 0,
+                "failed_count": len(symbols),
+                "successful_symbols": [],
+                "failed_symbols": [symbol.strip().upper() for symbol in symbols],
+                "fields": [],
+                "error": f"Unexpected error while comparing stocks: {str(error)}",
+            },
+        }

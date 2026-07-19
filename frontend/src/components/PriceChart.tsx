@@ -47,7 +47,7 @@ export function PriceChart({ history, currency = "USD" }: PriceChartProps) {
   }
 
   return (
-    <div className="premium-card rounded-[2rem] p-6">
+    <div className="premium-card min-w-0 rounded-[2rem] p-6">
       <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-cyan-200">
@@ -63,7 +63,7 @@ export function PriceChart({ history, currency = "USD" }: PriceChartProps) {
         </p>
       </div>
 
-      <div className="h-[320px] w-full">
+      <div className="h-[320px] min-h-[320px] w-full min-w-0 overflow-hidden">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <defs>
